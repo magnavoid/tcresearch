@@ -1,47 +1,148 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Thaumcraft 4.x-5.x Research Helper</title>
-	<script type="text/javascript" src="buckets-minified.js"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="select2.min.js"></script>
-	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Thaumcraft Research Compendium</title>
+	<script src="buckets-minified.js"></script>
+	<script src="jquery.min.js"></script>
+	<script src="jquery-ui.min.js"></script>
+	<script src="select2.min.js"></script>
+	<link rel="stylesheet" href="jquery-ui.css">
 	<link rel="stylesheet" href="select2.css">
-	<script type="text/javascript" src="translation_dictionary.js"></script>
-	<script type="text/javascript" src="version_dictionary.js"></script>
-	<script type="text/javascript" src="addon_dictionary.js"></script>
-	<script type="text/javascript" src="tcresearch.js"></script>
+	<script src="translation_dictionary.js"></script>
+	<script src="version_dictionary.js"></script>
+	<script src="addon_dictionary.js"></script>
+	<script src="tcresearch.js"></script>
 	<link rel="stylesheet" href="tcresearch.css">
-	<style type="text/css">
-	.select2-container .select2-choice {
-		height: 44px;
-	}
-	</style>
 </head>
 <body>
-	<h2>Thaumcraft 4.x-5.x Research Helper</h2>
-	<div id="combination_box"><div id="left"></div><span class="operator">+</span><div id="right"></div><span class="operator">=</span><div id="equals"></div></div>
-	<table>
-		<tr>
-			<td>Version:</td>
-			<td>
-				<select id="version">
-				</select>
-			</td>
-		</tr>
-		<tr><td>From:</td><td><input type=hidden id="fromSel"></input></td></tr>
-		<tr><td>To:</td><td><input type=hidden id="toSel"></input></td></tr>
-		<tr><td>Min. Steps:</td><td><input id="spinner" name="value" value="1" style="width:140px" /></td></tr>
-		<tr><td></td><td><input id="find_connection" type="button" value="Find Connection" /><input id="close_results" type="button" value="Close all results" /></td></tr>
-		<tr><td>Addons:</td><td id="addons"></td></tr> 
-		<tr><td>Available<br/>Aspects:</td><td><input type="button" id="sel_all" value="Select All Aspects"><input type="button" id="desel_all" value="Deselect All Aspects"><ul id="avail" class="aspectlist"></ul></td></tr>
-	</table>
 
-	<h3 style="margin-top:10px">Help</h3>
-	<p>This script helps you with your Thaumcraft 4.x research. If you have a research note with two aspects that you don't know how to connect, simply choose them in the dropdown list above (<strong>From:</strong> and <strong>To:</strong>). Additionally, choose the minimum number of steps between those two aspects. If in your research note, the two aspects have two blank spaces between them, choose the value 2 for <strong>Min. Steps</strong>. Then click <strong>Find Connection</strong> and the script will search for the shortest path (well, with at least the minimum length) that connects the two aspects. Note that sometimes the length of any path is longer then the given minimum, but this should not be a problem for your research note.</p>
-	<p>If you are unhappy with the path you got, because you do not have access to those aspects yet or they are quite rare, simply disable those aspects from <strong>Available Aspects:</strong>. The script will then try to find paths without these. Note that this may cause the path to grow longer. If too many aspects are disabled and there are no paths left without any of those, the script will try to find the shortest path using the minimal number of disabled aspects.</p>
-	<p style="size:small;color:#666;margin-top:10px;">This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/" style="color:#55a;">Creative Commons Attribution 4.0 License</a>. Sources can be found in the <a href="https://github.com/ythri/tcresearch/tree/gh-pages" style="color:#55a;">github repository</a>.</p>
+	<!-- Aspect recipe hover tooltip -->
+	<div id="combination_box">
+		<div id="left"></div>
+		<span class="operator">+</span>
+		<div id="right"></div>
+		<span class="operator">=</span>
+		<div id="equals"></div>
+	</div>
+
+	<header class="grimoire-header">
+		<div class="header-rune">✦ ✦ ✦</div>
+		<h1 class="grimoire-title">Thaumcraft Research Compendium</h1>
+		<p class="grimoire-subtitle">Aspect Pathfinder &amp; Research Aid</p>
+		<div class="header-divider"></div>
+	</header>
+
+	<div class="tome-layout">
+
+		<aside class="tome-panel tome-controls">
+			<div class="panel-heading">
+				<span>Arcane Query</span>
+			</div>
+			<div class="panel-body">
+
+				<div class="field-block">
+					<label class="rune-label" for="version">Tome Version</label>
+					<select id="version"></select>
+				</div>
+
+				<div class="field-block">
+					<label class="rune-label">Origin Aspect</label>
+					<input type="hidden" id="fromSel">
+				</div>
+
+				<div class="field-block">
+					<label class="rune-label">Terminus Aspect</label>
+					<input type="hidden" id="toSel">
+				</div>
+
+				<div class="field-block">
+					<label class="rune-label" for="spinner">Minimum Steps</label>
+					<input id="spinner" name="value" value="1">
+				</div>
+
+				<div class="spell-row">
+					<button id="find_connection" class="btn-cast">
+						<span class="cast-glyph">⟡</span> Seek Path
+					</button>
+					<button id="close_results" class="btn-banish">Dismiss All</button>
+				</div>
+
+				<div class="field-block field-block--last">
+					<label class="rune-label">Addon Tomes</label>
+					<div id="addons"></div>
+				</div>
+
+			</div>
+		</aside>
+
+		<section class="tome-panel tome-aspects">
+			<div class="panel-heading">
+				<span>Known Aspects</span>
+				<div class="aspect-controls">
+					<button id="sel_all" class="btn-minor">All</button>
+					<button id="desel_all" class="btn-minor">None</button>
+				</div>
+			</div>
+			<ul id="avail" class="aspectlist"></ul>
+		</section>
+
+	</div>
+
+	<footer class="grimoire-footer">
+		<div class="footer-ornament">
+			<span class="footer-rule"></span>
+			<span class="footer-glyph">❧</span>
+			<span class="footer-rule"></span>
+		</div>
+		<p class="footer-lore">Choose <em>Origin</em> and <em>Terminus</em> aspects from your research note, then set the minimum steps between them. Hover any compound aspect to reveal its recipe. Grayed aspects are excluded from pathfinding — click to toggle.</p>
+		<p class="footer-attr">Licensed <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> &middot; <a href="https://github.com/ythri/tcresearch/tree/gh-pages">Source on GitHub</a></p>
+	</footer>
+
+	<div id="arcane-circle">
+		<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+			<!-- Outer ring + cardinal markers -->
+			<g class="ac-ring-outer">
+				<circle cx="150" cy="150" r="138" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-dasharray="10 5" opacity="0.65"/>
+				<polygon points="150,7 157,21 143,21"  fill="#e8c96e" opacity="0.80"/>
+				<polygon points="293,150 279,143 279,157" fill="#e8c96e" opacity="0.80"/>
+				<polygon points="150,293 143,279 157,279" fill="#e8c96e" opacity="0.80"/>
+				<polygon points="7,150 21,157 21,143"  fill="#e8c96e" opacity="0.80"/>
+				<circle cx="248" cy="52"  r="2.5" fill="#c9a84c" opacity="0.50"/>
+				<circle cx="248" cy="248" r="2.5" fill="#c9a84c" opacity="0.50"/>
+				<circle cx="52"  cy="248" r="2.5" fill="#c9a84c" opacity="0.50"/>
+				<circle cx="52"  cy="52"  r="2.5" fill="#c9a84c" opacity="0.50"/>
+			</g>
+			<!-- Spokes — static -->
+			<g stroke="#c9a84c" stroke-width="0.8" opacity="0.20">
+				<line x1="150" y1="14"  x2="150" y2="80"/>
+				<line x1="150" y1="220" x2="150" y2="286"/>
+				<line x1="14"  y1="150" x2="80"  y2="150"/>
+				<line x1="220" y1="150" x2="286" y2="150"/>
+				<line x1="248" y1="52"  x2="202" y2="98"/>
+				<line x1="248" y1="248" x2="202" y2="202"/>
+				<line x1="52"  y1="248" x2="98"  y2="202"/>
+				<line x1="52"  y1="52"  x2="98"  y2="98"/>
+			</g>
+			<!-- Mid ring -->
+			<g class="ac-ring-mid">
+				<circle cx="150" cy="150" r="105" fill="none" stroke="#c9a84c" stroke-width="2" stroke-dasharray="20 5 3 5" opacity="0.80"/>
+			</g>
+			<!-- Inner ring + diamond markers -->
+			<g class="ac-ring-inner">
+				<circle cx="150" cy="150" r="68" fill="none" stroke="#e8c96e" stroke-width="1.5" stroke-dasharray="7 3" opacity="0.85"/>
+				<polygon points="150,76 154,83 150,90 146,83" fill="none" stroke="#e8c96e" stroke-width="1" opacity="0.65"/>
+				<polygon points="224,150 217,154 210,150 217,146" fill="none" stroke="#e8c96e" stroke-width="1" opacity="0.65"/>
+				<polygon points="150,224 154,217 150,210 146,217" fill="none" stroke="#e8c96e" stroke-width="1" opacity="0.65"/>
+				<polygon points="76,150 83,154 90,150 83,146"  fill="none" stroke="#e8c96e" stroke-width="1" opacity="0.65"/>
+			</g>
+			<!-- Centre -->
+			<circle cx="150" cy="150" r="20" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.40"/>
+			<text x="150" y="161" text-anchor="middle" font-family="Georgia,serif" font-size="30" fill="#e8c96e" opacity="0.92">✦</text>
+		</svg>
+	</div>
+
+	<script src="wisps.js"></script>
 </body>
 </html>

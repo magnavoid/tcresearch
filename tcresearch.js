@@ -1,5 +1,5 @@
 $(function(){
-	var latest_version = "5.1.3";
+	var latest_version = "4.2.2.0";
 	$.each(version_dictionary, function(key,version){
 		$("#version").append("<option value="+key+">"+key+"</option>");
 	});
@@ -102,6 +102,9 @@ $(function(){
 	$("#find_connection").click(function(){
 		run();
 	});
+	$(document).keydown(function(e){
+		if (e.key === "Enter" && !$(e.target).is("input[type=text]")) run();
+	});
 	$('#addons').on("change", ".addon_toggle", function() {
 		addon = $(this).attr("id");
 		if (this.checked) {
@@ -148,7 +151,13 @@ $(function(){
 			$("#combination_box #right").html('<img src="aspects/color/' + translate[combination[1]] + '.png" /><div class="name">' + formatAspectName(translate[combination[1]]) + '</div><div class="desc">' + combination[1] + '</div>');
 			$("#combination_box #equals").html('<img src="aspects/color/' + translate[aspect] + '.png" /><div class="name">' + formatAspectName(translate[aspect]) + '</div><div class="desc">' + aspect + '</div>');
 			$(this).mousemove(function(e) {
-				$("#combination_box").css({left:e.pageX+10, top:e.pageY-100}).show();
+				var $box = $("#combination_box").show();
+				var bw   = $box.outerWidth();
+				var bh   = $box.outerHeight();
+				var left = (e.pageX + 10 + bw > window.innerWidth)  ? e.pageX - bw - 10 : e.pageX + 10;
+				var top  = (e.pageY - 100 < 0)                       ? e.pageY + 10      : e.pageY - 100;
+				if (top + bh > window.innerHeight) top = e.pageY - bh - 10;
+				$box.css({ left: left, top: top });
 			});
 		} else {
 			$("#combination_box").hide();
@@ -196,7 +205,6 @@ $(function(){
 		    allowClear:false,
 		    sortResults: function(results, container, query) {
     			return results.sort(function(a, b) {
-    				console.log(a,b)
     				return translate[a.id].localeCompare(translate[b.id]);
     			});
         	},
@@ -224,10 +232,21 @@ $(function(){
 		$("body").append('<ul id="'+id+'" class="aspectlist result" title="'+title+'"></ul>');
 		$('#'+id).dialog({
 			autoOpen: false,
-			modal: false,
-			resizable:false,
-			width: 200
+			modal: true,
+			resizable: false,
+			draggable: false,
+			width: 300,
+			open: function() {
+				var $dlg = $(this).closest('.ui-dialog');
+				$dlg.removeClass('scroll-unfurl');
+				setTimeout(function() { $dlg.addClass('scroll-unfurl'); }, 10);
+			}
 		});
+		if (!path) {
+			$('#'+id).append('<li style="padding:10px;color:#a00;">No path found. Try enabling more aspects or reducing Min. Steps.</li>');
+			$('#'+id).dialog("open");
+			return;
+		}
 		$('#'+id).append("<div></div>");
 		var loop_count=0;
 		path.forEach(function(e) {
